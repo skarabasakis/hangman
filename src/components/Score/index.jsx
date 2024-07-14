@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 const hangmanClass = (step) => `hangman hangman-${step}`;
 
-export default function Score({ step = 5 }) {
+export default function Score({ step }) {
     return (
       <div className="score">
         <div className="stickman">
@@ -13,5 +13,5 @@ export default function Score({ step = 5 }) {
 }
 
 Score.propTypes = {
-  step: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6])
+  step: PropTypes.oneOf(["0", "1", "2", "3", "4", "5", "6"]),
 };

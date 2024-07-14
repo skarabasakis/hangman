@@ -1,6 +1,8 @@
-export default function Results() {
+import PropTypes from 'prop-types';
+
+export default function Results({isGameOver = false}) {
   return (
-    <div className="results" style={{display: "none"}}>
+    <div className="results" style={{display: isGameOver ? "initial" : "none"}}>
       <div>
         <h3 className="heading">Puzzle Solved!</h3>
         <button className="button">Next puzzle</button>
@@ -8,3 +10,7 @@ export default function Results() {
     </div>
   )
 }
+
+Results.propTypes = {
+  isGameOver: PropTypes.bool.isRequired
+};
