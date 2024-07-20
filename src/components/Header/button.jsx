@@ -1,15 +1,15 @@
 import PropTypes from 'prop-types';
 
-function Button({children}) {
+function Button({onClick = () => {}, children}) {
   return (
-    <button>
+    <button onClick={onClick}>
       {children}
     </button>
   );
 }
 
 Button.propTypes = {
-  // children is a component that is passed as a prop to Button
+  onClick: PropTypes.func,
   children: PropTypes.node.isRequired,
 };
 

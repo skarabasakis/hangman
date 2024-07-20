@@ -1,36 +1,47 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function Puzzle({category, phrase}) {
+export default function Puzzle({puzzle, onWrongGuess = () => {}, onPuzzleSolved = ()=> {}, forceReveal = false}) {
 
   const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
   const [ hiddenLetters, setHiddenLetters ] = useState(alphabet);
 
-  const revealLetter = (letter) => {
-    setHiddenLetters(hiddenLetters.filter((l) => l !== letter));
-  }
+  const isCorrectGuess = letter => puzzle.phrase.includes(letter);
+  const revealLetter = letter => setHiddenLetters(hiddenLetters.filter(l => l !== letter));
+  const guessLetter = letter => {
+    revealLetter(letter);
+    isCorrectGuess(letter) || onWrongGuess();
+  };
 
-  const isInPuzzle = (letter) => {
-    return phrase.toLowerCase().includes(letter);
-  }
+  const isLetter = char => char.match(/[a-z]/);
+  const isLetterRevealed = letter => !hiddenLetters.includes(letter);
+  const isPuzzleSolved = () => puzzle.phrase.split('').filter(isLetter).every(isLetterRevealed);
 
-  const isLetterRevealed = (letter) => {
-    return !hiddenLetters.includes(letter);
-  }
+  useEffect(() => {
+    if (forceReveal) {
+      setHiddenLetters([]);
+    }
+  }, [forceReveal]);
 
-  return (
+  useEffect(() => {
+    if (!forceReveal && puzzle && isPuzzleSolved()) {
+      onPuzzleSolved();
+    }
+  }, [puzzle, forceReveal, hiddenLetters, onPuzzleSolved]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return puzzle && (
     <>
       <div className="puzzle">
-        <h2>{category}</h2>
+        <h2>{puzzle.category}</h2>
         <div className="tiles">
           {
-            phrase.split(' ').map((word, index) => (
+            puzzle.phrase.split(' ').map((word, index) => (
               <span key={`word-${index}`} className='word'>
                 {
                     word.split('').map((char, index) => {
-                      if (char.match(/[A-Za-z]/)) {
+                      if (isLetter(char)) {
                         return (
-                          <span key={`puzzle-tile-${index}`} className='tile letter'>{ isLetterRevealed(char.toLowerCase()) ? char : '⠀' }</span>
+                          <span key={`puzzle-tile-${index}`} className='tile letter'>{ isLetterRevealed(char) ? char : '⠀' }</span>
                         )
                       } else {
                         return (
@@ -47,7 +58,7 @@ export default function Puzzle({category, phrase}) {
       <div className="letterboard">
         <div className="letters">
           {alphabet.map((letter) => (
-            <button onClick={revealLetter.bind(this, letter)} key={`button-${letter}`} disabled={isLetterRevealed(letter)} className="letter">{letter}</button>
+            <button key={`button-${letter}`} onClick={guessLetter.bind(this, letter)} disabled={isLetterRevealed(letter)} className="letter">{letter}</button>
           ))}
         </div>
       </div>
@@ -56,6 +67,11 @@ export default function Puzzle({category, phrase}) {
 }
 
 Puzzle.propTypes = {
-  category: PropTypes.string.isRequired,
-  phrase: PropTypes.string.isRequired,
+  puzzle: PropTypes.shape({
+    category: PropTypes.string.isRequired,
+    phrase: PropTypes.string.isRequired,
+  }),
+  onWrongGuess: PropTypes.func.isRequired,
+  onPuzzleSolved: PropTypes.func.isRequired,
+  forceReveal: PropTypes.bool.isRequired
 };

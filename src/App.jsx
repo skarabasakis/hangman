@@ -4,34 +4,62 @@ import Puzzle from "./components/Puzzle"
 import Results from "./components/Results"
 import Score from "./components/Score"
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { v4 as uuid } from 'uuid'
 
 function App() {
 
   const maxLives = 6;
-  const [ remainingLives, setRemainingLives ] = useState(maxLives);
+  const [remainingLives, setRemainingLives] = useState(maxLives);
 
-  const loseLife = () => {
-    setRemainingLives(remainingLives - 1);
-  }
+  const [puzzle, setPuzzle] = useState(null);
+  const [gameRoundId, setGameRoundId] = useState(uuid());
+  const [isSolved, setIsSolved] = useState(false);
 
   const isGameOver = () => remainingLives === 0;
+  const isRoundOver = () => isSolved || isGameOver();
 
-  const currentStep = () => (maxLives - remainingLives).toString();
+  const restartGame = () => {
+    setPuzzle(null);
+    resetRound();
+  }
+
+  const resetRound = () => {
+    setIsSolved(false);
+    setRemainingLives(maxLives);
+    setGameRoundId(uuid());
+  };
+
+  useEffect(() => {
+    if (!puzzle) {
+      fetch('https://cf-hangman-puzzles.skarabasakis.workers.dev/')
+        .then(response => response.json())
+        .then(data => {
+          data.phrase = data.phrase.toLowerCase();
+          setPuzzle(data);
+        });
+    }
+  }, [puzzle]);
 
   return (
     <>
-      <Header />
+      <Header
+        onReload={()=>restartGame()}
+        />
       <main>
         <Score
-          step={currentStep()}
+          key={`score-${gameRoundId}`}
+          step={(maxLives - remainingLives).toString()}
           />
         <Puzzle
-          category = "Quotes"
-          phrase = "Be the change you wish to see in the world!"
+          key={`puzzle-${gameRoundId}`}
+          puzzle={puzzle}
+          onWrongGuess={() => setRemainingLives(remainingLives - 1)}
+          onPuzzleSolved={() => setIsSolved(true)}
+          forceReveal={isRoundOver()}
           />
       </main>
-      <Results isGameOver={isGameOver()}/>
+      <Results showResults={isRoundOver()} isGameOver={isGameOver()} onRestart={()=>restartGame()}/>)
       <Footer />
     </>
   )

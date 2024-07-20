@@ -1,14 +1,14 @@
+import PropTypes from 'prop-types';
 import Button from "./button";
 import { IconReload, IconSettings } from "./icons";
 
-
-function Header() {
+function Header({onReload}) {
     return (
       <header>
         <div>
           <h1>Hangman</h1>
           <nav>
-            <Button>
+            <Button onClick={onReload}>
               <IconReload />
             </Button>
             <Button>
@@ -19,5 +19,9 @@ function Header() {
       </header>
     );
 }
+
+Header.propTypes = {
+  onReload: PropTypes.func.isRequired,
+};
 
 export default Header;

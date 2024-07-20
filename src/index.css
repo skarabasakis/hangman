@@ -283,11 +283,13 @@ header nav a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: transparent;
   border: 1px solid black;
 }
 
 .results div {
+  background: whitesmoke;
+  border: 1px solid black;
   text-align: center;
   padding: 1rem;
 }
