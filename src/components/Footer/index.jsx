@@ -1,7 +1,7 @@
 function Footer() {
     return (
       <footer>
-        <p>© 2021</p>
+        <p>© {new Date().getFullYear()}</p>
       </footer>
     );
 }
